@@ -1,25 +1,100 @@
-// --- App State & Data ---
+// ============================================================================
+// ⚙️ APP STATE & INITIAL DATA
+// ============================================================================
 const appContent = document.getElementById('app-content');
 
-// 📝 EDIT HERE: Departments and Semesters
 const departments = ['BS&H', 'CSE', 'DS', 'EEE', 'MECH', 'ECE'];
 const semesters = ['SEM-3', 'SEM-4', 'SEM-5', 'SEM-6', 'SEM-7'];
 
-// 📝 EDIT HERE: BS&H Department specific lists
-const bshSubjectsList = ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5', 'Sub-6', 'Sub-7', 'Sub-8', 'Sub-9', 'Sub-10'];
-const bshLabsList = ['Lab-1', 'Lab-2', 'Lab-3', 'Lab-4', 'Lab-5'];
-const bshWorkshopsList = ['Workshop-1', 'Workshop-2', 'Workshop-3'];
-const bshOtherCoursesList = ['Course-1', 'Course-2'];
+// ============================================================================
+// 📝 1. THE CURRICULUM DATABASE
+// Edit your Subject & Lab names here. Change 'Sub-1' to your actual subjects.
+// ============================================================================
+const bshData = {
+    subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5', 'Sub-6', 'Sub-7', 'Sub-8', 'Sub-9', 'Sub-10'],
+    labs: ['Lab-1', 'Lab-2', 'Lab-3', 'Lab-4', 'Lab-5'],
+    workshops: ['Workshop-1', 'Workshop-2', 'Workshop-3'],
+    courses: ['Course-1', 'Course-2']
+};
 
-// 📝 EDIT HERE: Lists for other branches (CSE, DS, etc.)
-const theorySubjectsList = ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'];
-const labsList = ['Lab-1', 'Lab-2', 'Lab-3'];
+const defaultSemData = { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] };
 
-// --- 🌙 Dark Mode Toggle Logic ---
+// 2. All Other Departments (Organized by Department, then Semester)
+// Just replace 'Sub-1' etc. with the actual subject names for that specific semester!
+const curriculumData = {
+    "CSE": {
+        "SEM-3": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-4": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-5": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-6": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-7": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] }
+    },
+    "DS": {
+        "SEM-3": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-4": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-5": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-6": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-7": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] }
+    },
+    "EEE": {
+        "SEM-3": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-4": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-5": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-6": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-7": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] }
+    },
+    "MECH": {
+        "SEM-3": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-4": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-5": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-6": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-7": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] }
+    },
+    "ECE": {
+        "SEM-3": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-4": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-5": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-6": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-7": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] }
+    }
+};
+
+// ============================================================================
+// 📝 2. THE FILE LINKS DATABASE
+// Paste your PDF links here! The key must exactly match the Department, Semester, and Subject.
+// ============================================================================
+const fileLinks = {
+    
+    // Example 1: BS&H Subject 1
+    "BS&H - Sub-1": {
+        pyq: "#",
+        unit1: "#", 
+        unit2: "#",
+        unit3: "#", 
+        unit4: "#",
+        unit5: "#"
+    },
+
+    // Example 2: CSE Sem 4 Subject 1
+    "CSE - SEM-4 - Sub-1": {
+        pyq: "#",
+        unit1: "./assets/osu1.pdf",
+        unit2: "./assets/OS unit 2 print.pdf",
+        unit3: "./assets/OS unit 3 print.pdf",
+        unit4: "./assets/UNIT IV OS .pdf",
+        unit5: "./assets/UNIT V OS.pdf"
+    }
+    
+    // Add more here as you gather files...
+};
+
+
+// ============================================================================
+// 🌙 DARK MODE TOGGLE LOGIC
+// ============================================================================
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const themeBtnIcon = document.querySelector('#theme-btn i');
-    
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
         themeBtnIcon.classList.replace('fa-moon', 'fa-sun');
@@ -29,7 +104,6 @@ function initTheme() {
 function toggleTheme() {
     const isDark = document.body.classList.toggle('dark-mode');
     const themeBtnIcon = document.querySelector('#theme-btn i');
-    
     if (isDark) {
         localStorage.setItem('theme', 'dark');
         themeBtnIcon.classList.replace('fa-moon', 'fa-sun');
@@ -40,32 +114,35 @@ function toggleTheme() {
 }
 
 
-// --- 🔍 Global Search Engine Logic ---
+// ============================================================================
+// 🔍 GLOBAL SEARCH ENGINE LOGIC
+// ============================================================================
 let searchIndex = [];
 
 function buildSearchIndex() {
     searchIndex = [];
-    bshSubjectsList.forEach(sub => searchIndex.push({ name: sub, context: 'BS&H' }));
-    bshLabsList.forEach(lab => searchIndex.push({ name: lab, context: 'BS&H' }));
-    bshWorkshopsList.forEach(ws => searchIndex.push({ name: ws, context: 'BS&H' }));
-    bshOtherCoursesList.forEach(course => searchIndex.push({ name: course, context: 'BS&H' }));
+    
+    // Index BS&H
+    bshData.subjects.forEach(sub => searchIndex.push({ name: sub, context: 'BS&H' }));
+    bshData.labs.forEach(lab => searchIndex.push({ name: lab, context: 'BS&H' }));
+    bshData.workshops.forEach(ws => searchIndex.push({ name: ws, context: 'BS&H' }));
+    bshData.courses.forEach(course => searchIndex.push({ name: course, context: 'BS&H' }));
 
+    // Index all other departments dynamically
     departments.filter(d => d !== 'BS&H').forEach(dept => {
         semesters.forEach(sem => {
             const contextStr = `${dept} - ${sem}`;
-            theorySubjectsList.forEach(sub => searchIndex.push({ name: sub, context: contextStr }));
-            labsList.forEach(lab => searchIndex.push({ name: lab, context: contextStr }));
+            if(curriculumData[dept] && curriculumData[dept][sem]) {
+                curriculumData[dept][sem].subjects.forEach(sub => searchIndex.push({ name: sub, context: contextStr }));
+                curriculumData[dept][sem].labs.forEach(lab => searchIndex.push({ name: lab, context: contextStr }));
+            }
         });
     });
 }
 
 function handleSearch() {
     const query = document.getElementById('search-input').value.toLowerCase();
-    
-    if (query.trim() === '') {
-        goHome();
-        return;
-    }
+    if (query.trim() === '') return goHome();
 
     const results = searchIndex.filter(item => 
         item.name.toLowerCase().includes(query) || 
@@ -83,7 +160,7 @@ function handleSearch() {
     `;
 
     if (results.length === 0) {
-        html += `<p style="color: var(--text-light); width: 100%;">No matches found. Try searching for "Sub-1" or "Lab".</p>`;
+        html += `<p style="color: var(--text-light); width: 100%;">No matches found.</p>`;
     } else {
         results.forEach((res, index) => {
             const delay = index * 0.05; 
@@ -96,7 +173,6 @@ function handleSearch() {
             `;
         });
     }
-    
     html += `</div>`;
     appContent.innerHTML = html;
 }
@@ -112,8 +188,9 @@ function openSearchResult(context, name) {
 }
 
 
-// --- View Rendering Logic ---
-
+// ============================================================================
+// 🖥️ VIEW RENDERING LOGIC (Navigation)
+// ============================================================================
 function goHome() {
     let html = `<div class="grid-container">`;
     departments.forEach((dept, index) => {
@@ -133,11 +210,8 @@ function goHome() {
 
 function openDepartment(dept) {
     document.getElementById('about-section').style.display = 'none'; 
-    if (dept === 'BS&H') {
-        renderSubjects(dept, null);
-    } else {
-        renderSemesters(dept);
-    }
+    if (dept === 'BS&H') renderSubjects(dept, null);
+    else renderSemesters(dept);
 }
 
 function renderSemesters(dept) {
@@ -174,28 +248,31 @@ function renderSubjects(dept, sem) {
 
     if (dept === 'BS&H') {
         html += `<h3 class="section-title">Theory Subjects</h3><div class="grid-container">`;
-        bshSubjectsList.forEach((sub, i) => html += createSubjectCard(sub, title, i * 0.1));
+        bshData.subjects.forEach((sub, i) => html += createSubjectCard(sub, title, i * 0.1));
         html += `</div>`;
 
         html += `<h3 class="section-title">Laboratories</h3><div class="grid-container">`;
-        bshLabsList.forEach((lab, i) => html += createSubjectCard(lab, title, i * 0.1));
+        bshData.labs.forEach((lab, i) => html += createSubjectCard(lab, title, i * 0.1));
         html += `</div>`;
 
         html += `<h3 class="section-title">Workshops</h3><div class="grid-container">`;
-        bshWorkshopsList.forEach((ws, i) => html += createSubjectCard(ws, title, i * 0.1));
+        bshData.workshops.forEach((ws, i) => html += createSubjectCard(ws, title, i * 0.1));
         html += `</div>`;
 
         html += `<h3 class="section-title">Other Courses</h3><div class="grid-container">`;
-        bshOtherCoursesList.forEach((course, i) => html += createSubjectCard(course, title, i * 0.1));
+        bshData.courses.forEach((course, i) => html += createSubjectCard(course, title, i * 0.1));
         html += `</div>`;
     } else {
-        html += `<h3 class="section-title">Theory Subjects</h3><div class="grid-container">`;
-        theorySubjectsList.forEach((sub, i) => html += createSubjectCard(sub, title, i * 0.1));
-        html += `</div>`;
+        const currentData = curriculumData[dept][sem];
+        if(currentData) {
+            html += `<h3 class="section-title">Theory Subjects</h3><div class="grid-container">`;
+            currentData.subjects.forEach((sub, i) => html += createSubjectCard(sub, title, i * 0.1));
+            html += `</div>`;
 
-        html += `<h3 class="section-title">Laboratories</h3><div class="grid-container">`;
-        labsList.forEach((lab, i) => html += createSubjectCard(lab, title, i * 0.1));
-        html += `</div>`;
+            html += `<h3 class="section-title">Laboratories</h3><div class="grid-container">`;
+            currentData.labs.forEach((lab, i) => html += createSubjectCard(lab, title, i * 0.1));
+            html += `</div>`;
+        }
     }
 
     appContent.innerHTML = html;
@@ -209,11 +286,20 @@ function createSubjectCard(name, context, delay) {
     `;
 }
 
+// ============================================================================
+// 📚 MATERIAL RENDERER (Connects to File Links Database)
+// ============================================================================
 function renderMaterials(context, subjectName) {
     const parts = context.split(' - ');
     const dept = parts[0];
     const sem = parts[1] || null;
     const backAction = `renderSubjects('${dept}', ${sem ? `'${sem}'` : 'null'})`;
+
+    // Look up the links for this specific subject
+    const lookupKey = `${context} - ${subjectName}`;
+    const links = fileLinks[lookupKey] || {
+        pyq: '#', unit1: '#', unit2: '#', unit3: '#', unit4: '#', unit5: '#'
+    };
 
     let html = `
         <div class="view-header">
@@ -223,35 +309,37 @@ function renderMaterials(context, subjectName) {
         
         <div class="material-list">
             <h3 class="section-title"><i class="fas fa-file-pdf"></i> PYQ Papers</h3>
-            ${createMaterialRow('Previous Year Question Papers', 0.1)}
+            ${createMaterialRow('Previous Year Question Papers', links.pyq, 0.1)}
             
             <h3 class="section-title"><i class="fas fa-book-open"></i> Notes & Materials</h3>
-            ${createMaterialRow('Unit - 1', 0.2)}
-            ${createMaterialRow('Unit - 2', 0.3)}
-            ${createMaterialRow('Unit - 3', 0.4)}
-            ${createMaterialRow('Unit - 4', 0.5)}
-            ${createMaterialRow('Unit - 5', 0.6)}
+            ${createMaterialRow('Unit - 1', links.unit1, 0.2)}
+            ${createMaterialRow('Unit - 2', links.unit2, 0.3)}
+            ${createMaterialRow('Unit - 3', links.unit3, 0.4)}
+            ${createMaterialRow('Unit - 4', links.unit4, 0.5)}
+            ${createMaterialRow('Unit - 5', links.unit5, 0.6)}
         </div>
     `;
     
     appContent.innerHTML = html;
 }
 
-function createMaterialRow(itemName, delay) {
+function createMaterialRow(itemName, fileLink, delay) {
     return `
         <div class="material-item" style="animation-delay: ${delay}s">
             <h4>${itemName}</h4>
             <div class="material-actions">
-                <a href="#" target="_blank" class="btn btn-view"><i class="fas fa-eye"></i> View</a>
-                <a href="#" download class="btn btn-download"><i class="fas fa-download"></i> Download</a>
+                <a href="${fileLink}" target="_blank" class="btn btn-view"><i class="fas fa-eye"></i> View</a>
+                <a href="${fileLink}" download class="btn btn-download"><i class="fas fa-download"></i> Download</a>
             </div>
         </div>
     `;
 }
 
-// Initialize the app on load
+// ============================================================================
+// 🚀 INITIALIZATION
+// ============================================================================
 window.onload = () => {
-    initTheme(); // Checks if Dark Mode was saved
+    initTheme(); 
     buildSearchIndex();
     goHome();
 };
