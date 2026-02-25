@@ -24,7 +24,7 @@ const defaultSemData = { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5']
 const curriculumData = {
     "CSE": {
         "SEM-3": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
-        "SEM-4": { subjects: ['OPERATING SYSTEM', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
+        "SEM-4": { subjects: ['OPERATING SYSTEM', 'FLAT', 'DBMS', 'MEFA', 'PROBABILITY AND STATISTICS'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
         "SEM-5": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
         "SEM-6": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] },
         "SEM-7": { subjects: ['Sub-1', 'Sub-2', 'Sub-3', 'Sub-4', 'Sub-5'], labs: ['Lab-1', 'Lab-2', 'Lab-3'] }
