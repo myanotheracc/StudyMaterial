@@ -1,7 +1,7 @@
 const appContent = document.getElementById('app-content');
 
 // NOTE: Update this URL after deploying your backend to Render!
-const API_URL = 'https://YOUR-RENDER-APP-URL.onrender.com/api/materials'; 
+const API_URL = 'https://studymaterial-0cbq.onrender.com'; 
 
 const departments = ['BS&H', 'CSE', 'DS', 'EEE', 'MECH', 'ECE'];
 const semesters = ['SEM-3', 'SEM-4', 'SEM-5', 'SEM-6', 'SEM-7'];
