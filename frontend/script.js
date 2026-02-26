@@ -3,7 +3,9 @@
 // ============================================================================
 const supabaseUrl = 'https://iztuarghbjvypxicmfvl.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6dHVhcmdoYmp2eXB4aWNtZnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDU5NTUsImV4cCI6MjA4NzY4MTk1NX0.SGiEk9JZTOGg5AkHsVKz8HgqyxA776_NCoMzqb6PxY8';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// FIX: Renamed 'supabase' to 'supabaseClient' to prevent crashing with the CDN
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Constants for UI Structure (Dropdowns & Home Page Cards)
 const departments = ['BS&H', 'CSE', 'DS', 'EEE', 'MECH', 'ECE'];
@@ -28,7 +30,7 @@ window.onload = async () => {
 async function fetchGlobalMaterials() {
     try {
         // Fetch all rows from Supabase 'materials' table
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('materials')
             .select('*');
 
@@ -398,14 +400,14 @@ async function handleAdminSubmit(event) {
             const fileExt = file.name.split('.').pop();
             const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
             
-            const { error: uploadError } = await supabase.storage
+            const { error: uploadError } = await supabaseClient.storage
                 .from('study-materials')
                 .upload(uniqueFileName, file);
 
             if (uploadError) throw uploadError;
 
             // Get the live public URL
-            const { data: publicUrlData } = supabase.storage
+            const { data: publicUrlData } = supabaseClient.storage
                 .from('study-materials')
                 .getPublicUrl(uniqueFileName);
                 
@@ -418,7 +420,7 @@ async function handleAdminSubmit(event) {
 
         // 3. Save to Supabase Database (Update or Insert)
         if (currentEditingId) {
-            const { error: dbError } = await supabase
+            const { error: dbError } = await supabaseClient
                 .from('materials')
                 .update(payload)
                 .eq('id', currentEditingId);
@@ -427,7 +429,7 @@ async function handleAdminSubmit(event) {
         } else {
             if (!file_url) throw new Error("A file is required for new uploads.");
             
-            const { error: dbError } = await supabase
+            const { error: dbError } = await supabaseClient
                 .from('materials')
                 .insert([payload]);
                 
@@ -481,11 +483,11 @@ async function deleteMaterial(id) {
         if (material && material.link) {
             const urlParts = material.link.split('/');
             const fileName = urlParts[urlParts.length - 1];
-            await supabase.storage.from('study-materials').remove([fileName]);
+            await supabaseClient.storage.from('study-materials').remove([fileName]);
         }
 
         // 2. Delete the row from the Database
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('materials')
             .delete()
             .eq('id', id);
