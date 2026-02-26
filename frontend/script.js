@@ -1,19 +1,21 @@
 // ==========================================
-// 1. INITIALIZE SUPABASE
+// 1. SUPABASE CONNECTION (PASTE YOUR KEYS HERE)
 // ==========================================
-// NOTE: Paste your Supabase URL and Anon Key below!
 const supabaseUrl = 'https://iztuarghbjvypxicmfvl.supabase.com';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6dHVhcmdoYmp2eXB4aWNtZnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDU5NTUsImV4cCI6MjA4NzY4MTk1NX0.SGiEk9JZTOGg5AkHsVKz8HgqyxA776_NCoMzqb6PxY8';
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // ==========================================
-// STATE & CONFIG
+// 2. STATE & CONFIGURATION
 // ==========================================
 const appContent = document.getElementById('app-content');
 const departments = ['BS&H', 'CSE', 'DS', 'EEE', 'MECH', 'ECE'];
 const semesters = ['SEM-1', 'SEM-2', 'SEM-3', 'SEM-4', 'SEM-5', 'SEM-6', 'SEM-7', 'SEM-8'];
 let isAdmin = false; 
 
+// ==========================================
+// 3. NAVIGATION LISTENERS
+// ==========================================
 document.getElementById('nav-home').addEventListener('click', () => {
     isAdmin = false;
     renderStudentView();
@@ -30,82 +32,91 @@ document.getElementById('nav-login').addEventListener('click', () => {
 });
 
 // ==========================================
-// RENDER STUDENT VIEW
+// 4. RENDER VIEWS (UI)
 // ==========================================
 function renderStudentView() {
     appContent.innerHTML = `
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <select id="filter-dept" class="form-select">
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-4 mb-2">
+                <select id="filter-dept" class="form-select shadow-sm">
                     <option value="">Select Department</option>
                     ${departments.map(d => `<option value="${d}">${d}</option>`).join('')}
                 </select>
             </div>
-            <div class="col-md-6">
-                <select id="filter-sem" class="form-select">
+            <div class="col-md-4 mb-2">
+                <select id="filter-sem" class="form-select shadow-sm">
                     <option value="">Select Semester</option>
                     ${semesters.map(s => `<option value="${s}">${s}</option>`).join('')}
                 </select>
             </div>
+            <div class="col-md-2 mb-2 d-grid">
+                <button id="search-btn" class="btn btn-primary shadow-sm">Search</button>
+            </div>
         </div>
-        <div class="text-center mb-4">
-            <button id="search-btn" class="btn btn-primary">Search Materials</button>
+        <div id="results" class="row mt-4">
+            <p class="text-center text-muted mt-5">Select a department and semester to find study materials.</p>
         </div>
-        <div id="results" class="row"></div>
     `;
 
     document.getElementById('search-btn').addEventListener('click', () => fetchMaterials(false));
 }
 
-// ==========================================
-// RENDER ADMIN VIEW
-// ==========================================
 function renderAdminView() {
     appContent.innerHTML = `
-        <h3 class="mb-4">Admin Dashboard</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-primary">Admin Dashboard</h3>
+        </div>
         <div class="row">
-            <div class="col-md-4">
-                <div class="card p-3 shadow-sm">
-                    <h5>Upload Material</h5>
+            <div class="col-md-4 mb-4">
+                <div class="card p-4 shadow border-0">
+                    <h5 class="mb-3 text-secondary">Upload Material</h5>
                     <form id="uploadForm">
-                        <select id="department" class="form-select mb-2" required>
-                            <option value="">Dept</option>
+                        <select id="department" class="form-select mb-3" required>
+                            <option value="">Select Department</option>
                             ${departments.map(d => `<option value="${d}">${d}</option>`).join('')}
                         </select>
-                        <select id="semester" class="form-select mb-2" required>
-                            <option value="">Sem</option>
+                        <select id="semester" class="form-select mb-3" required>
+                            <option value="">Select Semester</option>
                             ${semesters.map(s => `<option value="${s}">${s}</option>`).join('')}
                         </select>
-                        <input type="text" id="subject" class="form-control mb-2" placeholder="Subject Name" required>
-                        <input type="text" id="title" class="form-control mb-2" placeholder="File Title (e.g., Unit 1 Notes)" required>
-                        <input type="file" id="fileInput" class="form-control mb-3" accept="application/pdf" required>
-                        <button type="submit" class="btn btn-success w-100">Save Material</button>
+                        <input type="text" id="subject" class="form-control mb-3" placeholder="Subject Name (e.g. OS)" required>
+                        <input type="text" id="title" class="form-control mb-3" placeholder="File Title (e.g. Unit 1 Notes)" required>
+                        <input type="file" id="fileInput" class="form-control mb-4" accept="application/pdf" required>
+                        <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm">Save Material</button>
                     </form>
                 </div>
             </div>
+            
             <div class="col-md-8">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Title</th>
-                            <th>Subject</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="materialsTableBody">
-                        <tr><td colspan="3" class="text-center">Loading files...</td></tr>
-                    </tbody>
-                </table>
+                <div class="card shadow border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="ps-4">Title</th>
+                                        <th>Subject</th>
+                                        <th>Dept / Sem</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="materialsTableBody">
+                                    <tr><td colspan="4" class="text-center py-4 text-muted">Loading files from database...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     `;
 
     document.getElementById('uploadForm').addEventListener('submit', uploadMaterial);
-    fetchMaterials(true); // Fetch all for the admin table
+    fetchMaterials(true); // Automatically load all files into the admin table
 }
 
 // ==========================================
-// SUPABASE: FETCH MATERIALS
+// 5. DATABASE OPERATIONS (SUPABASE)
 // ==========================================
 async function fetchMaterials(isAdminTable = false) {
     try {
@@ -119,8 +130,7 @@ async function fetchMaterials(isAdminTable = false) {
                 alert('Please select both Department and Semester');
                 return;
             }
-            
-            // Filter by selected dropdowns
+            // Filter by exactly what the student searched for
             query = query.eq('department', dept).eq('semester', sem);
         }
 
@@ -138,9 +148,6 @@ async function fetchMaterials(isAdminTable = false) {
     }
 }
 
-// ==========================================
-// SUPABASE: UPLOAD MATERIAL
-// ==========================================
 async function uploadMaterial(e) {
     e.preventDefault();
 
@@ -154,11 +161,12 @@ async function uploadMaterial(e) {
     if (!file) return alert("Please select a file");
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
-    submitBtn.innerText = 'Uploading...';
+    const originalText = submitBtn.innerText;
+    submitBtn.innerText = 'Uploading... Please wait.';
     submitBtn.disabled = true;
 
     try {
-        // 1. Create unique filename
+        // 1. Create a safe, unique file name
         const fileExt = file.name.split('.').pop();
         const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         
@@ -169,14 +177,14 @@ async function uploadMaterial(e) {
 
         if (uploadError) throw uploadError;
 
-        // 3. Get the public URL for the file
+        // 3. Get the public URL for the newly uploaded file
         const { data: publicUrlData } = supabase.storage
             .from('study-materials')
             .getPublicUrl(uniqueFileName);
             
         const file_url = publicUrlData.publicUrl;
 
-        // 4. Save metadata to Supabase Database
+        // 4. Save the text metadata to the Supabase Database
         const { error: dbError } = await supabase
             .from('materials')
             .insert([{ department, semester, subject, title, file_url }]);
@@ -185,36 +193,33 @@ async function uploadMaterial(e) {
 
         alert("Material saved successfully!");
         e.target.reset();
-        fetchMaterials(true); // refresh the table
+        fetchMaterials(true); // Refresh admin table
 
     } catch (err) {
         console.error("Upload error:", err);
-        alert("Failed to save material. Check console.");
+        alert("Failed to save material. See console for details.");
     } finally {
-        submitBtn.innerText = 'Save Material';
+        submitBtn.innerText = originalText;
         submitBtn.disabled = false;
     }
 }
 
-// ==========================================
-// SUPABASE: DELETE MATERIAL
-// ==========================================
 window.deleteMaterial = async function(id, fileUrl) {
-    if (!confirm('Delete this file permanently?')) return;
+    if (!confirm('Are you sure you want to delete this file permanently?')) return;
 
     try {
-        // Extract filename from URL
+        // 1. Extract filename from URL so we can delete it from Storage
         const urlParts = fileUrl.split('/');
         const fileName = urlParts[urlParts.length - 1];
 
-        // 1. Delete from Storage
+        // 2. Delete from Supabase Storage
         const { error: storageError } = await supabase.storage
             .from('study-materials')
             .remove([fileName]);
 
         if (storageError) throw storageError;
 
-        // 2. Delete from Database
+        // 3. Delete from Supabase Database
         const { error: dbError } = await supabase
             .from('materials')
             .delete()
@@ -222,7 +227,7 @@ window.deleteMaterial = async function(id, fileUrl) {
 
         if (dbError) throw dbError;
 
-        fetchMaterials(true); // refresh table
+        fetchMaterials(true); // Refresh admin table
     } catch (error) {
         console.error("Delete error:", error);
         alert("Failed to delete file.");
@@ -230,28 +235,32 @@ window.deleteMaterial = async function(id, fileUrl) {
 };
 
 // ==========================================
-// DISPLAY LOGIC
+// 6. DISPLAY DATA ON SCREEN
 // ==========================================
 function displayStudentResults(materials) {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
 
     if (materials.length === 0) {
-        resultsDiv.innerHTML = '<p class="text-center text-muted">No materials found for this selection.</p>';
+        resultsDiv.innerHTML = `
+            <div class="col-12 text-center mt-4">
+                <h5 class="text-muted">No materials found for this selection.</h5>
+            </div>`;
         return;
     }
 
     materials.forEach(mat => {
         resultsDiv.innerHTML += `
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">${mat.subject}</h5>
-                        <p class="card-text fw-bold">${mat.title}</p>
-                        <p class="card-text text-muted small">${mat.department} | ${mat.semester}</p>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0 bg-white">
+                    <div class="card-body text-center pt-4">
+                        <h5 class="card-title fw-bold text-primary mb-1">${mat.subject}</h5>
+                        <p class="card-text text-dark mb-3">${mat.title}</p>
+                        <span class="badge bg-light text-dark border shadow-sm">${mat.department}</span>
+                        <span class="badge bg-light text-dark border shadow-sm">${mat.semester}</span>
                     </div>
-                    <div class="card-footer bg-transparent border-0 text-center">
-                         <a href="${mat.file_url}" target="_blank" class="btn btn-outline-primary w-100">View PDF</a>
+                    <div class="card-footer bg-transparent border-0 pb-4 text-center">
+                         <a href="${mat.file_url}" target="_blank" class="btn btn-outline-primary px-4 rounded-pill">View PDF</a>
                     </div>
                 </div>
             </div>
@@ -266,23 +275,26 @@ function displayAdminTable(materials) {
     tbody.innerHTML = '';
 
     if (materials.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center">No files uploaded yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No files uploaded yet.</td></tr>';
         return;
     }
 
     materials.forEach(mat => {
         tbody.innerHTML += `
             <tr>
-                <td>${mat.title}</td>
-                <td>${mat.subject}</td>
-                <td>
-                    <a href="${mat.file_url}" target="_blank" class="btn btn-sm btn-primary">View</a>
-                    <button class="btn btn-sm btn-danger" onclick="deleteMaterial('${mat.id}', '${mat.file_url}')">Delete</button>
+                <td class="ps-4 fw-medium">${mat.title}</td>
+                <td class="text-primary fw-bold">${mat.subject}</td>
+                <td><span class="badge bg-secondary">${mat.department}</span> <span class="badge bg-info text-dark">${mat.semester}</span></td>
+                <td class="text-end pe-4">
+                    <a href="${mat.file_url}" target="_blank" class="btn btn-sm btn-outline-primary me-1">View</a>
+                    <button class="btn btn-sm btn-danger shadow-sm" onclick="deleteMaterial('${mat.id}', '${mat.file_url}')">Delete</button>
                 </td>
             </tr>
         `;
     });
 }
 
-// Start app by showing the student view
-renderStudentView();
+// ==========================================
+// START APP
+// ==========================================
+renderStudentView(); // Show student view on load
