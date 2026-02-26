@@ -1,8 +1,8 @@
 // ============================================================================
 // ⚙️ APP STATE & CONSTANTS
 // ============================================================================
-const supabaseUrl = 'https://iztuarghbjvypxicmfvl.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6dHVhcmdoYmp2eXB4aWNtZnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDU5NTUsImV4cCI6MjA4NzY4MTk1NX0.SGiEk9JZTOGg5AkHsVKz8HgqyxA776_NCoMzqb6PxY8';
+const supabaseUrl = 'https://zjpcotvkbiwbcczldorp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqcGNvdHZrYml3YmNjemxkb3JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzQ1NjEsImV4cCI6MjA4NzcxMDU2MX0.E4Y3Cl3QuFXMk--uBz5w99Bk60qxZmM2mKmj1zgIwIs';
 
 // FIX: Renamed 'supabase' to 'supabaseClient' to prevent crashing with the CDN
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
