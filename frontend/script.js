@@ -1,12 +1,16 @@
 // ============================================================================
 // ⚙️ APP STATE & CONSTANTS
 // ============================================================================
-const appContent = document.getElementById('app-content');
-const API_URL = 'http://localhost:5000/api/materials'; // Your Node.js Backend
+const supabaseUrl = 'https://iztuarghbjvypxicmfvl.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6dHVhcmdoYmp2eXB4aWNtZnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDU5NTUsImV4cCI6MjA4NzY4MTk1NX0.SGiEk9JZTOGg5AkHsVKz8HgqyxA776_NCoMzqb6PxY8';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Constants for UI Structure (Dropdowns & Home Page Cards)
 const departments = ['BS&H', 'CSE', 'DS', 'EEE', 'MECH', 'ECE'];
 const semesters = ['SEM-3', 'SEM-4', 'SEM-5', 'SEM-6', 'SEM-7'];
+
+// App Content Container
+const appContent = document.getElementById('app-content');
 
 // Global variable to store the database data
 let globalMaterialsData = [];
@@ -23,15 +27,23 @@ window.onload = async () => {
 
 async function fetchGlobalMaterials() {
     try {
-        const response = await fetch(API_URL);
-        if (response.ok) {
-            globalMaterialsData = await response.json();
-            buildSearchIndex();
-        } else {
-            console.error("Failed to fetch database");
-        }
+        // Fetch all rows from Supabase 'materials' table
+        const { data, error } = await supabase
+            .from('materials')
+            .select('*');
+
+        if (error) throw error;
+
+        // Map Supabase columns (id, file_url) to match your UI's expected format
+        globalMaterialsData = data.map(item => ({
+            ...item,
+            _id: item.id,
+            link: item.file_url 
+        }));
+        
+        buildSearchIndex();
     } catch (error) {
-        console.error("Backend not reachable. Is server.js running?", error);
+        console.error("Failed to fetch database:", error);
     }
 }
 
@@ -255,10 +267,7 @@ function renderMaterials(context, subjectName) {
 }
 
 // ============================================================================
-// 🛡️ FULL-STACK ADMIN DASHBOARD LOGIC 
-// ============================================================================
-// ============================================================================
-// 🛡️ FULL-STACK ADMIN DASHBOARD LOGIC (WITH FILE UPLOADS)
+// 🛡️ FULL-STACK ADMIN DASHBOARD LOGIC (WITH SUPABASE)
 // ============================================================================
 let currentEditingId = null; 
 
@@ -365,42 +374,74 @@ function renderAdminTable() {
 async function handleAdminSubmit(event) {
     event.preventDefault();
     
-    // We use FormData instead of JSON to send the physical file
-    const formData = new FormData();
-    formData.append('department', document.getElementById('admin-dept').value);
-    formData.append('semester', document.getElementById('admin-sem').value);
-    formData.append('subject', document.getElementById('admin-sub').value.trim());
-    formData.append('title', document.getElementById('admin-title').value.trim());
+    const department = document.getElementById('admin-dept').value;
+    const semester = document.getElementById('admin-sem').value;
+    const subject = document.getElementById('admin-sub').value.trim().toUpperCase();
+    const title = document.getElementById('admin-title').value.trim();
     
     const fileInput = document.getElementById('admin-file');
-    if (fileInput.files.length > 0) {
-        formData.append('file', fileInput.files[0]); // Attach the uploaded file
-    }
+    const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+
+    const submitBtn = document.getElementById('submit-btn');
+    const originalText = submitBtn.innerText;
+    submitBtn.innerText = 'Uploading to Cloud...';
+    submitBtn.disabled = true;
 
     try {
-        let response;
-        if (currentEditingId) {
-            response = await fetch(`${API_URL}/${currentEditingId}`, {
-                method: 'PUT',
-                body: formData // No Headers required for FormData, fetch handles it!
-            });
-        } else {
-            response = await fetch(API_URL, {
-                method: 'POST',
-                body: formData
-            });
+        let file_url = null;
+
+        // 1. Upload new file to Supabase Storage if one was selected
+        if (file) {
+            const fileExt = file.name.split('.').pop();
+            const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+                .from('study-materials')
+                .upload(uniqueFileName, file);
+
+            if (uploadError) throw uploadError;
+
+            // Get the live public URL
+            const { data: publicUrlData } = supabase.storage
+                .from('study-materials')
+                .getPublicUrl(uniqueFileName);
+                
+            file_url = publicUrlData.publicUrl;
         }
 
-        if (response.ok) {
-            cancelEdit(); // Reset form
-            await fetchGlobalMaterials(); 
-            renderAdminTable(); 
+        // 2. Prepare text data for Database
+        const payload = { department, semester, subject, title };
+        if (file_url) payload.file_url = file_url;
+
+        // 3. Save to Supabase Database (Update or Insert)
+        if (currentEditingId) {
+            const { error: dbError } = await supabase
+                .from('materials')
+                .update(payload)
+                .eq('id', currentEditingId);
+                
+            if (dbError) throw dbError;
         } else {
-            alert('Failed to save material to database.');
+            if (!file_url) throw new Error("A file is required for new uploads.");
+            
+            const { error: dbError } = await supabase
+                .from('materials')
+                .insert([payload]);
+                
+            if (dbError) throw dbError;
         }
+
+        alert('Material saved successfully!');
+        cancelEdit(); 
+        await fetchGlobalMaterials(); 
+        renderAdminTable(); 
+        
     } catch (error) {
         console.error("Database Error:", error);
-        alert("Error connecting to database. Is server.js running?");
+        alert(error.message || "Error connecting to database.");
+    } finally {
+        submitBtn.innerText = originalText;
+        submitBtn.disabled = false;
     }
 }
 
@@ -432,14 +473,26 @@ function cancelEdit() {
 async function deleteMaterial(id) {
     if(!confirm("Are you sure you want to delete this file permanently?")) return;
     try {
-        const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-            await fetchGlobalMaterials(); 
-            renderAdminTable(); 
-        } else {
-            alert('Failed to delete material.');
+        // 1. Delete the file from the Storage bucket first
+        const material = globalMaterialsData.find(m => m._id === id);
+        if (material && material.link) {
+            const urlParts = material.link.split('/');
+            const fileName = urlParts[urlParts.length - 1];
+            await supabase.storage.from('study-materials').remove([fileName]);
         }
+
+        // 2. Delete the row from the Database
+        const { error } = await supabase
+            .from('materials')
+            .delete()
+            .eq('id', id);
+            
+        if (error) throw error;
+
+        await fetchGlobalMaterials(); 
+        renderAdminTable(); 
     } catch (error) {
         console.error("Delete Error:", error);
+        alert("Failed to delete material.");
     }
 }
