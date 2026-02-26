@@ -3,33 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCET Study Material Portal</title>
+    <title>BCET Study Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
-    <header id="main-header">
-        <div class="nav-left">
-            <button id="home-btn" onclick="goHome()" title="Home"><i class="fas fa-home"></i></button>
-            <button id="theme-btn" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
-            <button id="login-btn" onclick="openAdminPanel()" title="Admin Login"><i class="fas fa-user-shield"></i> Login</button>
-            <h1>BCET Study Portal</h1>
-        </div>
-        
-        <div class="search-container" id="main-search">
-            <input type="text" id="search-input" placeholder="Search subjects, labs..." onkeyup="handleSearch()">
-            <i class="fas fa-search search-icon"></i>
-        </div>
-    </header>
+<body class="bg-light">
 
-    <main>
-        <div id="app-content"></div>
-    </main>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">BCET Study Portal</a>
+            <div>
+                <button class="btn btn-outline-light me-2" id="nav-home">Home</button>
+                <button class="btn btn-light" id="nav-login">Admin Login</button>
+            </div>
+        </div>
+    </nav>
 
-    <footer id="about-section">
-        <h3>About</h3>
-        <p>Welcome to the BCET Study Material Portal. Access previous year question papers (PYQs), lecture notes, and lab manuals for all engineering departments. Stay organized and ace your exams!</p>
-    </footer>
+    <div class="container" id="app-content">
+        </div>
 
     <script src="script.js"></script>
 </body>
