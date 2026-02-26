@@ -1,8 +1,8 @@
 // ============================================================================
 // ⚙️ APP STATE & CONSTANTS
 // ============================================================================
-const supabaseUrl = window.location.origin + '/supabase-proxy';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjZmdvc2drY3hwamF4dXh1bXNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzc1MDksImV4cCI6MjA4NzcxMzUwOX0.MCkWjf-9I3C8Vv-bxh-PWs3Rr8XSmn4R80tINvoVwT4';
+const supabaseUrl = 'https://lblpiiikrjoowoxfqkyr.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxibHBpaWlrcmpvb3dveGZxa3lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzI0NjQsImV4cCI6MjA4NzcwODQ2NH0.LiMH2BrqZnWTSF0jSQWrwNlg5DeR6wIefCNXw1JDum0';
 
 // FIX: Renamed 'supabase' to 'supabaseClient' to prevent crashing with the CDN
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
