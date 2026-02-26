@@ -34,8 +34,11 @@ async function fetchGlobalMaterials() {
 
         if (error) throw error;
 
+        // FIX: Ensure data is an array before mapping
+        const safeData = data || [];
+
         // Map Supabase columns (id, file_url) to match your UI's expected format
-        globalMaterialsData = data.map(item => ({
+        globalMaterialsData = safeData.map(item => ({
             ...item,
             _id: item.id,
             link: item.file_url 
