@@ -1,20 +1,22 @@
 // ============================================================================
 // ⚙️ APP STATE & CONSTANTS
 // ============================================================================
-const supabaseUrl = 'https://lblpiiikrjoowoxfqkyr.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxibHBpaWlrcmpvb3dveGZxa3lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzI0NjQsImV4cCI6MjA4NzcwODQ2NH0.LiMH2BrqZnWTSF0jSQWrwNlg5DeR6wIefCNXw1JDum0';
 
-// FIX: Renamed 'supabase' to 'supabaseClient' to prevent crashing with the CDN
+// 1. Vercel Proxy URL (Bypasses Firewall)
+const supabaseUrl = window.location.origin + '/supabase-proxy';
+// Paste your Singapore Supabase ANON Key below:
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxibHBpaWlrcmpvb3dveGZxa3lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzI0NjQsImV4cCI6MjA4NzcwODQ2NH0.LiMH2BrqZnWTSF0jSQWrwNlg5DeR6wIefCNXw1JDum0';
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Constants for UI Structure (Dropdowns & Home Page Cards)
+// 2. Cloudinary Config (Bypasses Vercel Size Limit)
+const cloudinaryCloudName = 'dfkuht22n'; // e.g., 'dxyz123'
+const cloudinaryUploadPreset = 'bcet_materials'; // e.g., 'bcet_materials'
+
+// Constants for UI Structure
 const departments = ['BS&H', 'CSE', 'DS', 'EEE', 'MECH', 'ECE'];
 const semesters = ['SEM-3', 'SEM-4', 'SEM-5', 'SEM-6', 'SEM-7'];
 
-// App Content Container
 const appContent = document.getElementById('app-content');
-
-// Global variable to store the database data
 let globalMaterialsData = [];
 let searchIndex = [];
 
@@ -23,29 +25,21 @@ let searchIndex = [];
 // ============================================================================
 window.onload = async () => {
     initTheme(); 
-    await fetchGlobalMaterials(); // Load DB before rendering
+    await fetchGlobalMaterials(); 
     goHome();
 };
 
 async function fetchGlobalMaterials() {
     try {
-        // Fetch all rows from Supabase 'materials' table
-        const { data, error } = await supabaseClient
-            .from('materials')
-            .select('*');
-
+        const { data, error } = await supabaseClient.from('materials').select('*');
         if (error) throw error;
 
-        // FIX: Ensure data is an array before mapping
         const safeData = data || [];
-
-        // Map Supabase columns (id, file_url) to match your UI's expected format
         globalMaterialsData = safeData.map(item => ({
             ...item,
             _id: item.id,
             link: item.file_url 
         }));
-        
         buildSearchIndex();
     } catch (error) {
         console.error("Failed to fetch database:", error);
@@ -53,7 +47,7 @@ async function fetchGlobalMaterials() {
 }
 
 // ============================================================================
-// 🌙 DARK MODE TOGGLE LOGIC
+// 🌙 DARK MODE & SEARCH LOGIC
 // ============================================================================
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
@@ -76,19 +70,12 @@ function toggleTheme() {
     }
 }
 
-// ============================================================================
-// 🔍 DYNAMIC SEARCH ENGINE
-// ============================================================================
 function buildSearchIndex() {
     searchIndex = [];
-    
-    // Extract unique subjects across the entire database to build search suggestions
     const uniqueEntries = new Set();
-
     globalMaterialsData.forEach(mat => {
         const contextStr = mat.department === 'BS&H' ? 'BS&H' : `${mat.department} - ${mat.semester}`;
         const uniqueKey = `${contextStr} - ${mat.subject}`;
-        
         if (!uniqueEntries.has(uniqueKey)) {
             uniqueEntries.add(uniqueKey);
             searchIndex.push({ name: mat.subject, context: contextStr });
@@ -96,13 +83,12 @@ function buildSearchIndex() {
     });
 }
 
-function handleSearch() {
+window.handleSearch = function() {
     const query = document.getElementById('search-input').value.toLowerCase();
     if (query.trim() === '') return goHome();
 
     const results = searchIndex.filter(item => 
-        item.name.toLowerCase().includes(query) || 
-        item.context.toLowerCase().includes(query)
+        item.name.toLowerCase().includes(query) || item.context.toLowerCase().includes(query)
     );
 
     document.getElementById('about-section').style.display = 'none';
@@ -134,24 +120,23 @@ function handleSearch() {
     appContent.innerHTML = html;
 }
 
-function clearSearchAndGoHome() {
+window.clearSearchAndGoHome = function() {
     document.getElementById('search-input').value = '';
     goHome();
 }
 
-function openSearchResult(context, name) {
+window.openSearchResult = function(context, name) {
     document.getElementById('search-input').value = ''; 
     renderMaterials(context, name); 
 }
 
 // ============================================================================
-// 🖥️ DYNAMIC VIEW RENDERING (Navigation)
+// 🖥️ DYNAMIC VIEW RENDERING
 // ============================================================================
-function goHome() {
+window.goHome = function() {
     document.getElementById('main-search').style.display = 'flex';
     document.getElementById('about-section').style.display = 'block'; 
     let html = `<div class="grid-container">`;
-    
     departments.forEach((dept, index) => {
         html += `
             <div class="card" style="animation-delay: ${index * 0.1}s" onclick="openDepartment('${dept}')">
@@ -164,13 +149,13 @@ function goHome() {
     appContent.innerHTML = html;
 }
 
-function openDepartment(dept) {
+window.openDepartment = function(dept) {
     document.getElementById('about-section').style.display = 'none'; 
     if (dept === 'BS&H') renderSubjects(dept, 'ALL');
     else renderSemesters(dept);
 }
 
-function renderSemesters(dept) {
+window.renderSemesters = function(dept) {
     let html = `
         <div class="view-header">
             <div class="header-left">
@@ -192,15 +177,12 @@ function renderSemesters(dept) {
     appContent.innerHTML = html;
 }
 
-function renderSubjects(dept, sem) {
+window.renderSubjects = function(dept, sem) {
     const title = sem === 'ALL' ? `${dept}` : `${dept} - ${sem}`;
     const backAction = sem === 'ALL' ? `goHome()` : `renderSemesters('${dept}')`;
     const contextStr = sem === 'ALL' ? dept : `${dept} - ${sem}`;
     
-    // Filter database for materials that belong to this exact Department and Semester
     const relevantMaterials = globalMaterialsData.filter(m => m.department === dept && m.semester === sem);
-    
-    // Extract unique subjects from those materials
     const uniqueSubjects = [...new Set(relevantMaterials.map(m => m.subject))];
 
     let html = `
@@ -226,17 +208,15 @@ function renderSubjects(dept, sem) {
         });
         html += `</div>`;
     }
-
     appContent.innerHTML = html;
 }
 
-function renderMaterials(context, subjectName) {
+window.renderMaterials = function(context, subjectName) {
     const parts = context.split(' - ');
     const dept = parts[0];
     const sem = parts.length > 1 ? parts[1] : 'ALL';
     const backAction = `renderSubjects('${dept}', '${sem}')`;
 
-    // Fetch all files mapped to this specific subject
     const filesForSubject = globalMaterialsData.filter(m => 
         m.department === dept && m.semester === sem && m.subject === subjectName
     );
@@ -272,11 +252,11 @@ function renderMaterials(context, subjectName) {
 }
 
 // ============================================================================
-// 🛡️ FULL-STACK ADMIN DASHBOARD LOGIC (WITH SUPABASE)
+// 🛡️ FULL-STACK ADMIN DASHBOARD LOGIC (CLOUDINARY + SUPABASE PROXY)
 // ============================================================================
 let currentEditingId = null; 
 
-async function openAdminPanel() {
+window.openAdminPanel = async function() {
     document.getElementById('about-section').style.display = 'none';
     document.getElementById('main-search').style.display = 'none'; 
     
@@ -340,8 +320,7 @@ async function openAdminPanel() {
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-table-body">
-                            </tbody>
+                        <tbody id="admin-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -376,7 +355,7 @@ function renderAdminTable() {
     });
 }
 
-async function handleAdminSubmit(event) {
+window.handleAdminSubmit = async function(event) {
     event.preventDefault();
     
     const department = document.getElementById('admin-dept').value;
@@ -389,50 +368,41 @@ async function handleAdminSubmit(event) {
 
     const submitBtn = document.getElementById('submit-btn');
     const originalText = submitBtn.innerText;
-    submitBtn.innerText = 'Uploading to Cloud...';
+    submitBtn.innerText = 'Uploading to Cloudinary...';
     submitBtn.disabled = true;
 
     try {
         let file_url = null;
 
-        // 1. Upload new file to Supabase Storage if one was selected
+        // 1. Direct Cloudinary Upload (Bypasses Vercel Size Limit)
         if (file) {
-            const fileExt = file.name.split('.').pop();
-            const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', cloudinaryUploadPreset);
+
+            const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const cloudData = await cloudRes.json();
             
-            const { error: uploadError } = await supabaseClient.storage
-                .from('study-materials')
-                .upload(uniqueFileName, file);
-
-            if (uploadError) throw uploadError;
-
-            // Get the live public URL
-            const { data: publicUrlData } = supabaseClient.storage
-                .from('study-materials')
-                .getPublicUrl(uniqueFileName);
-                
-            file_url = publicUrlData.publicUrl;
+            if (!cloudRes.ok) throw new Error(cloudData.error.message || "Cloudinary upload failed");
+            file_url = cloudData.secure_url;
         }
 
-        // 2. Prepare text data for Database
+        submitBtn.innerText = 'Saving to Database...';
+
+        // 2. Prepare Database Payload
         const payload = { department, semester, subject, title };
         if (file_url) payload.file_url = file_url;
 
-        // 3. Save to Supabase Database (Update or Insert)
+        // 3. Save to Supabase via Vercel Proxy (Bypasses College Firewall)
         if (currentEditingId) {
-            const { error: dbError } = await supabaseClient
-                .from('materials')
-                .update(payload)
-                .eq('id', currentEditingId);
-                
+            const { error: dbError } = await supabaseClient.from('materials').update(payload).eq('id', currentEditingId);
             if (dbError) throw dbError;
         } else {
             if (!file_url) throw new Error("A file is required for new uploads.");
-            
-            const { error: dbError } = await supabaseClient
-                .from('materials')
-                .insert([payload]);
-                
+            const { error: dbError } = await supabaseClient.from('materials').insert([payload]);
             if (dbError) throw dbError;
         }
 
@@ -442,22 +412,21 @@ async function handleAdminSubmit(event) {
         renderAdminTable(); 
         
     } catch (error) {
-        console.error("Database Error:", error);
-        alert(error.message || "Error connecting to database.");
+        console.error("Upload Error:", error);
+        alert(error.message || "Error saving material.");
     } finally {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;
     }
 }
 
-function editMaterial(id, dept, sem, sub, title, link) {
+window.editMaterial = function(id, dept, sem, sub, title, link) {
     currentEditingId = id;
     document.getElementById('admin-dept').value = dept;
     document.getElementById('admin-sem').value = sem;
     document.getElementById('admin-sub').value = sub;
     document.getElementById('admin-title').value = title;
     
-    // When editing, we don't force them to upload a new file
     document.getElementById('admin-file').required = false;
     document.getElementById('current-file-link').style.display = 'block';
     document.getElementById('current-file-link').innerHTML = `Current: <a href="${link}" target="_blank" style="color:var(--color-4)">View PDF</a> (Upload new to replace)`;
@@ -466,7 +435,7 @@ function editMaterial(id, dept, sem, sub, title, link) {
     document.getElementById('cancel-edit-btn').style.display = 'block';
 }
 
-function cancelEdit() {
+window.cancelEdit = function() {
     currentEditingId = null;
     document.getElementById('admin-form').reset();
     document.getElementById('admin-file').required = true;
@@ -475,23 +444,11 @@ function cancelEdit() {
     document.getElementById('cancel-edit-btn').style.display = 'none';
 }
 
-async function deleteMaterial(id) {
+window.deleteMaterial = async function(id) {
     if(!confirm("Are you sure you want to delete this file permanently?")) return;
     try {
-        // 1. Delete the file from the Storage bucket first
-        const material = globalMaterialsData.find(m => m._id === id);
-        if (material && material.link) {
-            const urlParts = material.link.split('/');
-            const fileName = urlParts[urlParts.length - 1];
-            await supabaseClient.storage.from('study-materials').remove([fileName]);
-        }
-
-        // 2. Delete the row from the Database
-        const { error } = await supabaseClient
-            .from('materials')
-            .delete()
-            .eq('id', id);
-            
+        // Delete the record using the proxy
+        const { error } = await supabaseClient.from('materials').delete().eq('id', id);
         if (error) throw error;
 
         await fetchGlobalMaterials(); 
