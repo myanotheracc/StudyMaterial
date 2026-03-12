@@ -23,7 +23,7 @@ let searchIndex = [];
 // ============================================================================
 // 🔐 ADMIN AUTHENTICATION LOGIC
 // ============================================================================
-const ADMIN_PASSKEY = "admin123"; // CHANGE THIS TO YOUR DESIRED PASSKEY
+const ADMIN_PASSKEY = "narayanaraoisouradmin"; // CHANGE THIS TO YOUR DESIRED PASSKEY
 
 window.attemptAdminLogin = function() {
     const key = prompt("Enter Admin Passkey:");
