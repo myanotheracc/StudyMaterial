@@ -21,16 +21,40 @@ let globalMaterialsData = [];
 let searchIndex = [];
 
 // ============================================================================
+// 🔐 ADMIN AUTHENTICATION LOGIC
+// ============================================================================
+const ADMIN_PASSKEY = "admin123"; // CHANGE THIS TO YOUR DESIRED PASSKEY
+
+window.attemptAdminLogin = function() {
+    const key = prompt("Enter Admin Passkey:");
+    if (key === ADMIN_PASSKEY) {
+        // Success: Store temporary session and go to admin page
+        sessionStorage.setItem("adminAuth", "true");
+        window.location.href = "admin.html";
+    } else if (key !== null) { 
+        // Failed (and they didn't just click Cancel)
+        alert("Incorrect passkey! Access denied.");
+    }
+}
+
+window.adminLogout = function() {
+    // Destroy the session and go back to login
+    sessionStorage.removeItem("adminAuth");
+    window.location.href = "index.html";
+}
+
+// ============================================================================
 // 🚀 INITIALIZATION & DATA FETCHING
 // ============================================================================
 window.onload = async () => {
     initTheme(); 
-    await fetchGlobalMaterials(); 
     
-    // Multi-page routing logic
+    // Only fetch data and render if we are NOT on the login page
     if (window.isAdminPage) {
+        await fetchGlobalMaterials(); 
         openAdminPanel();
-    } else {
+    } else if (appContent) {
+        await fetchGlobalMaterials(); 
         goHome();
     }
 };
@@ -276,14 +300,14 @@ window.openAdminPanel = async function() {
     const mainSearch = document.getElementById('main-search');
     if(mainSearch) mainSearch.style.display = 'none'; 
     
-    await fetchGlobalMaterials();
-
+    // We don't need to await fetchGlobalMaterials() here because it runs on window load
+    
     let html = `
         <div class="view-header">
             <div class="header-left">
                 <h2>BCET Study Portal - Admin Dashboard</h2>
             </div>
-            <button class="logout-btn" onclick="window.location.href='index.html'">Logout</button>
+            <button class="logout-btn" onclick="adminLogout()">Logout</button>
         </div>
         
         <div class="admin-dashboard">
@@ -348,6 +372,7 @@ window.openAdminPanel = async function() {
 
 function renderAdminTable() {
     const tbody = document.getElementById('admin-table-body');
+    if (!tbody) return;
     tbody.innerHTML = '';
     
     if (globalMaterialsData.length === 0) {

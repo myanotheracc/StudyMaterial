@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // If the session token is missing, kick them to the login page
+        if (sessionStorage.getItem("adminAuth") !== "true") {
+            window.location.href = "index.html";
+        }
+        // Tell script.js to load the admin panel
+        window.isAdminPage = true;
+    </script>
 </head>
 <body>
     <header id="main-header">
@@ -21,7 +30,6 @@
         <div id="app-content"></div>
     </main>
 
-    <script>window.isAdminPage = true;</script>
     <script src="script.js"></script>
 </body>
 </html>
