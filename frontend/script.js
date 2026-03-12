@@ -46,11 +46,16 @@ window.adminLogout = function() {
 // ============================================================================
 // 🚀 INITIALIZATION & DATA FETCHING
 // ============================================================================
+
 window.onload = async () => {
     initTheme(); 
     
-    // Only fetch data and render if we are NOT on the login page
     if (window.isAdminPage) {
+        // DOUBLE-CHECK SECURITY: Absolutely refuse to render if the token is missing
+        if (sessionStorage.getItem("adminAuth") !== "true") {
+            window.location.replace("index.html");
+            return; // Stops all further JavaScript execution instantly
+        }
         await fetchGlobalMaterials(); 
         openAdminPanel();
     } else if (appContent) {

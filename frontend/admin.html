@@ -9,12 +9,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-        // If the session token is missing, kick them to the login page
+        // If the session token is missing, boot them instantly and stop processing
         if (sessionStorage.getItem("adminAuth") !== "true") {
-            window.location.href = "index.html";
+            window.location.replace("index.html"); // replace() prevents going back
+        } else {
+            // Only set this to true if they are actually authenticated
+            window.isAdminPage = true;
         }
-        // Tell script.js to load the admin panel
-        window.isAdminPage = true;
     </script>
 </head>
 <body>
