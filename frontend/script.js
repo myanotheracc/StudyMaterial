@@ -9,8 +9,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // 2. Cloudinary Config (Bypasses Vercel Size Limit)
-const cloudinaryCloudName = 'dfkuht22n'; // e.g., 'dxyz123'
-const cloudinaryUploadPreset = 'bcet_materials'; // e.g., 'bcet_materials'
+const cloudinaryCloudName = 'dfkuht22n'; 
+const cloudinaryUploadPreset = 'bcet_materials'; 
 
 // Constants for UI Structure
 const departments = ['BS&H', 'CSE', 'DS', 'EEE', 'MECH', 'ECE'];
@@ -26,7 +26,13 @@ let searchIndex = [];
 window.onload = async () => {
     initTheme(); 
     await fetchGlobalMaterials(); 
-    goHome();
+    
+    // Multi-page routing logic
+    if (window.isAdminPage) {
+        openAdminPanel();
+    } else {
+        goHome();
+    }
 };
 
 async function fetchGlobalMaterials() {
@@ -91,7 +97,8 @@ window.handleSearch = function() {
         item.name.toLowerCase().includes(query) || item.context.toLowerCase().includes(query)
     );
 
-    document.getElementById('about-section').style.display = 'none';
+    const aboutSec = document.getElementById('about-section');
+    if(aboutSec) aboutSec.style.display = 'none';
 
     let html = `
         <div class="view-header">
@@ -134,8 +141,12 @@ window.openSearchResult = function(context, name) {
 // 🖥️ DYNAMIC VIEW RENDERING
 // ============================================================================
 window.goHome = function() {
-    document.getElementById('main-search').style.display = 'flex';
-    document.getElementById('about-section').style.display = 'block'; 
+    const mainSearch = document.getElementById('main-search');
+    if(mainSearch) mainSearch.style.display = 'flex';
+    
+    const aboutSec = document.getElementById('about-section');
+    if(aboutSec) aboutSec.style.display = 'block'; 
+
     let html = `<div class="grid-container">`;
     departments.forEach((dept, index) => {
         html += `
@@ -150,7 +161,9 @@ window.goHome = function() {
 }
 
 window.openDepartment = function(dept) {
-    document.getElementById('about-section').style.display = 'none'; 
+    const aboutSec = document.getElementById('about-section');
+    if(aboutSec) aboutSec.style.display = 'none'; 
+
     if (dept === 'BS&H') renderSubjects(dept, 'ALL');
     else renderSemesters(dept);
 }
@@ -257,8 +270,11 @@ window.renderMaterials = function(context, subjectName) {
 let currentEditingId = null; 
 
 window.openAdminPanel = async function() {
-    document.getElementById('about-section').style.display = 'none';
-    document.getElementById('main-search').style.display = 'none'; 
+    const aboutSec = document.getElementById('about-section');
+    if(aboutSec) aboutSec.style.display = 'none';
+    
+    const mainSearch = document.getElementById('main-search');
+    if(mainSearch) mainSearch.style.display = 'none'; 
     
     await fetchGlobalMaterials();
 
@@ -267,7 +283,7 @@ window.openAdminPanel = async function() {
             <div class="header-left">
                 <h2>BCET Study Portal - Admin Dashboard</h2>
             </div>
-            <button class="logout-btn" onclick="goHome()">Logout</button>
+            <button class="logout-btn" onclick="window.location.href='login.html'">Logout</button>
         </div>
         
         <div class="admin-dashboard">
@@ -374,7 +390,6 @@ window.handleAdminSubmit = async function(event) {
     try {
         let file_url = null;
 
-        // 1. Direct Cloudinary Upload (Bypasses Vercel Size Limit)
         if (file) {
             const formData = new FormData();
             formData.append('file', file);
@@ -392,11 +407,9 @@ window.handleAdminSubmit = async function(event) {
 
         submitBtn.innerText = 'Saving to Database...';
 
-        // 2. Prepare Database Payload
         const payload = { department, semester, subject, title };
         if (file_url) payload.file_url = file_url;
 
-        // 3. Save to Supabase via Vercel Proxy (Bypasses College Firewall)
         if (currentEditingId) {
             const { error: dbError } = await supabaseClient.from('materials').update(payload).eq('id', currentEditingId);
             if (dbError) throw dbError;
@@ -447,7 +460,6 @@ window.cancelEdit = function() {
 window.deleteMaterial = async function(id) {
     if(!confirm("Are you sure you want to delete this file permanently?")) return;
     try {
-        // Delete the record using the proxy
         const { error } = await supabaseClient.from('materials').delete().eq('id', id);
         if (error) throw error;
 

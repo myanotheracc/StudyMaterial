@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCET Study Material Portal</title>
+    <title>Admin - BCET Study Portal</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,14 +11,9 @@
 <body>
     <header id="main-header">
         <div class="nav-left">
-            <button id="home-btn" onclick="goHome()" title="Home"><i class="fas fa-home"></i></button>
+            <button id="home-btn" onclick="window.location.href='index.html'" title="View Live Site"><i class="fas fa-eye"></i></button>
             <button id="theme-btn" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
-            <h1>BCET Study Portal</h1>
-        </div>
-        
-        <div class="search-container" id="main-search">
-            <input type="text" id="search-input" placeholder="Search subjects, labs..." onkeyup="handleSearch()">
-            <i class="fas fa-search search-icon"></i>
+            <h1>BCET Admin Portal</h1>
         </div>
     </header>
 
@@ -26,11 +21,7 @@
         <div id="app-content"></div>
     </main>
 
-    <footer id="about-section">
-        <h3>About</h3>
-        <p>Welcome to the BCET Study Material Portal. Access previous year question papers (PYQs), lecture notes, and lab manuals for all engineering departments. Stay organized and ace your exams!</p>
-    </footer>
-
+    <script>window.isAdminPage = true;</script>
     <script src="script.js"></script>
 </body>
 </html>
