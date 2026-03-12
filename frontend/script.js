@@ -60,7 +60,7 @@ function initTheme() {
     const themeBtnIcon = document.querySelector('#theme-btn i');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
-        themeBtnIcon.classList.replace('fa-moon', 'fa-sun');
+        if(themeBtnIcon) themeBtnIcon.classList.replace('fa-moon', 'fa-sun');
     }
 }
 
@@ -69,10 +69,10 @@ function toggleTheme() {
     const themeBtnIcon = document.querySelector('#theme-btn i');
     if (isDark) {
         localStorage.setItem('theme', 'dark');
-        themeBtnIcon.classList.replace('fa-moon', 'fa-sun');
+        if(themeBtnIcon) themeBtnIcon.classList.replace('fa-moon', 'fa-sun');
     } else {
         localStorage.setItem('theme', 'light');
-        themeBtnIcon.classList.replace('fa-sun', 'fa-moon');
+        if(themeBtnIcon) themeBtnIcon.classList.replace('fa-sun', 'fa-moon');
     }
 }
 
@@ -283,7 +283,7 @@ window.openAdminPanel = async function() {
             <div class="header-left">
                 <h2>BCET Study Portal - Admin Dashboard</h2>
             </div>
-            <button class="logout-btn" onclick="window.location.href='login.html'">Logout</button>
+            <button class="logout-btn" onclick="window.location.href='index.html'">Logout</button>
         </div>
         
         <div class="admin-dashboard">
